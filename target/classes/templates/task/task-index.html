@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>任务管理</title>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}" media="all">
+
+</head>
+<body>
+    <table class="layui-hide" id="task" lay-filter="task"></table>
+</body>
+<script type="text/html" id="toolbar">
+    <div class="layui-inline">
+        <input class="layui-input" name="taskName"placeholder="任务名称" id="taskName" autocomplete="off">
+    </div>
+    <button class="layui-btn layui-btn-primary" lay-event="reload">搜索</button>
+    <button class="layui-btn layui-btn" lay-event="addTask">新增任务</button>
+</script>
+<script th:src="@{/layui/layui.js}" src="../static/layui/layui.js"></script>
+<script th:src="@{/js/jquery.min.js}" src="../static/js/jquery.min.js"></script>
+<script>
+    var taskTable;
+	layui.use(['table','layer'], function(){
+		var table = layui.table,
+        layer = layui.layer;
+		var taskName = $("#taskName").val();
+		if(!taskName) taskName = '';
+		taskTable = table.render({
+			elem: '#task'
+            ,id:'task'
+            ,toolbar:'#toolbar'
+            ,defaultToolbar:[]
+			,url:'/zyTask/queryForPage'
+            ,method:'post'
+			,height: 'full-20'
+            ,where:{taskName:taskName}
+			,cols: [
+				[
+				    {field:'taskName', title: '任务名称'},
+				    {field:'taskState', title: '任务状态',templet:function(row) {
+				    	    var taskState = row.taskState;
+				    	    if(taskState==0) {
+				    	    	return '<span class="layui-badge-dot layui-bg-orange"></span>&nbsp;待启动'
+                            } else if(taskState==1) {
+								return '<span class="layui-badge-dot layui-bg-green"></span>&nbsp;已启动'
+                            } else if(taskState==2) {
+								return '<span class="layui-badge-dot layui-bg-blue"></span>&nbsp;已完成'
+                            }
+                        }},
+				    {field:'createTime', title: '创建时间'},
+				    {title: '操作',templet:function(row) {
+				    	    let str = '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a><a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">详情</a>';
+				    	    var state = row.taskState;
+							if(state==0) {
+								str += '<a class="layui-btn layui-btn-xs" lay-event="start">启动</a>'
+							} else if(state==1) {
+								str += '<a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="stop">停止</a>'
+							} else if(state==2) {
+								str += '<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="export">导出</a>'
+							}
+				    	    return str;
+                        }}
+			    ]
+            ]
+			,page: true
+            ,parseData:function(res){
+				return {
+					"code": 0,
+					"msg": "",
+					"count": res.total,
+					"data": res.list
+                }
+            },
+            done:function() {
+				$("#taskName").val(this.where.taskName);
+            }
+		});
+
+		//头工具栏事件
+		table.on('toolbar(task)', function(obj){
+			switch(obj.event){
+				case 'addTask':
+					addTask();
+                case 'reload':
+                	reloadTable();
+			};
+		});
+
+		//监听行工具事件
+		table.on('tool(task)', function(obj){
+			var data = obj.data;
+			if(obj.event === 'del'){
+				layer.confirm('确认删除所选数据吗？', function(index){
+					delTaskObj(data.id)
+					layer.close(index);
+				});
+			} else if(obj.event === 'start'){
+				layer.confirm('确认启动所选任务吗？', function(index){
+					startJob(data.id)
+					layer.close(index);
+				});
+			}
+		});
+
+		var startJob = function(id) {
+			$.post('/zyTask/startJob',{taskId:id},function(result){
+				layer.msg(result.msg);
+				if(result.state==1) {
+					reloadTable();
+				}
+			},'json');
+        }
+
+		var delTaskObj = function(id) {
+            $.post('/zyTask/deleteTask',{id:id},function(result){
+            	layer.msg(result.msg);
+                if(result.state==1) {
+					reloadTable();
+                }
+            },'json');
+        }
+
+        var addTask = function() {
+			layer.open({
+				title:'新增任务',
+				type: 2,
+				area: ['700px', '450px'],
+				content: '/addTask'
+			});
+        }
+
+        var taskDetail = function(){
+			layer.open({
+				type:2,
+				area:['100%','100%'],
+				shade:0,
+				maxmin:true,
+				title:'新增',
+				content: 'http://layim.layui.com',
+			});
+        }
+	});
+
+	var reloadTable = function() {
+		var taskName = $("#taskName").val();
+		taskTable.reload({
+			page:{curr:1},
+			where:{taskName:taskName}
+		})
+	}
+</script>
+</html>

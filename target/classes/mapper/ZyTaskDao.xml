@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunqu.yq.engine.dao.ZyTaskDao">
+
+    <resultMap type="com.yunqu.yq.engine.entity.ZyTask" id="ZyTaskMap">
+        <result property="id" column="ID" jdbcType="VARCHAR"/>
+        <result property="taskName" column="TASK_NAME" jdbcType="VARCHAR"/>
+        <result property="taskState" column="TASK_STATE" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="VARCHAR"/>
+        <result property="dateId" column="DATE_ID" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="ZyTaskMap">
+        select
+          ID, TASK_NAME, TASK_STATE, CREATE_TIME, DATE_ID
+        from main.ZY_TASK
+        where ID = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="ZyTaskMap">
+        select
+          ID, TASK_NAME, TASK_STATE, CREATE_TIME, DATE_ID
+        from main.ZY_TASK
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="ZyTaskMap">
+        select
+          ID, TASK_NAME, TASK_STATE, CREATE_TIME, DATE_ID
+        from main.ZY_TASK
+        <where>
+            <if test="id != null and id != ''">
+                and ID = #{id}
+            </if>
+            <if test="taskName != null and taskName != ''">
+                and TASK_NAME like '${taskName}%'
+            </if>
+            <if test="taskState != null and taskState != ''">
+                and TASK_STATE = #{taskState}
+            </if>
+            <if test="createTime != null and createTime != ''">
+                and CREATE_TIME = #{createTime}
+            </if>
+            <if test="dateId != null and dateId != ''">
+                and DATE_ID = #{dateId}
+            </if>
+        </where>
+        order by CREATE_TIME desc
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into main.ZY_TASK(ID, TASK_NAME, TASK_STATE, CREATE_TIME, DATE_ID)
+        values (#{id}, #{taskName}, #{taskState}, #{createTime}, #{dateId})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update main.ZY_TASK
+        <set>
+            <if test="taskName != null and taskName != ''">
+                TASK_NAME = #{taskName},
+            </if>
+            <if test="taskState != null and taskState != ''">
+                TASK_STATE = #{taskState},
+            </if>
+            <if test="createTime != null and createTime != ''">
+                CREATE_TIME = #{createTime},
+            </if>
+            <if test="dateId != null and dateId != ''">
+                DATE_ID = #{dateId},
+            </if>
+        </set>
+        where ID = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from main.ZY_TASK where ID = #{id}
+    </delete>
+
+</mapper>
