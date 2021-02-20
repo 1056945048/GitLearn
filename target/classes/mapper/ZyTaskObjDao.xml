@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunqu.yq.engine.dao.ZyTaskObjDao">
+
+    <resultMap type="com.yunqu.yq.engine.entity.ZyTaskObj" id="ZyTaskObjMap">
+        <result property="id" column="ID" jdbcType="VARCHAR"/>
+        <result property="taskId" column="TASK_ID" jdbcType="VARCHAR"/>
+        <result property="markNum" column="MARK_NUM" jdbcType="INTEGER"/>
+        <result property="isSearched" column="IS_SEARCHED" jdbcType="INTEGER"/>
+        <result property="optTime" column="OPT_TIME" jdbcType="VARCHAR"/>
+        <result property="phoneNum" column="PHONE_NUM" jdbcType="VARCHAR"/>
+        <result property="memo" column="MEMO" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="ZyTaskObjMap">
+        select
+          ID, TASK_ID, MARK_NUM, IS_SEARCHED, OPT_TIME, PHONE_NUM, MEMO
+        from main.ZY_TASK_OBJ
+        where ID = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="ZyTaskObjMap">
+        select
+          ID, TASK_ID, MARK_NUM, IS_SEARCHED, OPT_TIME, PHONE_NUM, MEMO
+        from main.ZY_TASK_OBJ
+        where TASK_ID=#{taskId}
+        <!--and IS_SEARCHED=0-->
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="ZyTaskObjMap">
+        select
+          ID, TASK_ID, MARK_NUM, IS_SEARCHED, OPT_TIME, PHONE_NUM, MEMO
+        from main.ZY_TASK_OBJ
+        <where>
+            <if test="id != null and id != ''">
+                and ID = #{id}
+            </if>
+            <if test="taskId != null and taskId != ''">
+                and TASK_ID = #{taskId}
+            </if>
+            <if test="markNum != null">
+                and MARK_NUM = #{markNum}
+            </if>
+            <if test="isSearched != null">
+                and IS_SEARCHED = #{isSearched}
+            </if>
+            <if test="optTime != null and optTime != ''">
+                and OPT_TIME = #{optTime}
+            </if>
+            <if test="phoneNum != null and phoneNum != ''">
+                and PHONE_NUM = #{phoneNum}
+            </if>
+            <if test="memo != null and memo != ''">
+                and MEMO = #{memo}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into main.ZY_TASK_OBJ(ID, TASK_ID, MARK_NUM, IS_SEARCHED, OPT_TIME, PHONE_NUM, MEMO)
+        values (#{id}, #{taskId}, #{markNum}, #{isSearched}, #{optTime}, #{phoneNum}, #{memo})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update main.ZY_TASK_OBJ
+        <set>
+            <if test="taskId != null and taskId != ''">
+                TASK_ID = #{taskId},
+            </if>
+            <if test="markNum != null">
+                MARK_NUM = #{markNum},
+            </if>
+            <if test="isSearched != null">
+                IS_SEARCHED = #{isSearched},
+            </if>
+            <if test="optTime != null and optTime != ''">
+                OPT_TIME = #{optTime},
+            </if>
+            <if test="phoneNum != null and phoneNum != ''">
+                PHONE_NUM = #{phoneNum},
+            </if>
+            <if test="memo != null and memo != ''">
+                MEMO = #{memo},
+            </if>
+        </set>
+        where ID = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from main.ZY_TASK_OBJ where ID = #{id}
+    </delete>
+    <!--通过TASK_ID删除-->
+    <delete id="deleteByTaskId">
+        delete from main.ZY_TASK_OBJ where TASK_ID = #{taskId}
+    </delete>
+
+</mapper>

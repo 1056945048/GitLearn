@@ -1,0 +1,45 @@
+# Tomcat
+server:
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 1000
+    min-spare-threads: 30
+  port: 8088
+#spring
+spring:
+  # \u6307\u5B9A\u9759\u6001\u8D44\u6E90\u7684\u8DEF\u5F84
+  resources:
+    static-locations: classpath:/static/,classpath:/views/,file:${web.upload},file:${web.ueditorUpload}
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    # \u65B9\u5F0F\u4E00\uFF1A  \u5F15\u7528\u5916\u90E8\u6587\u4EF6
+    url: jdbc:sqlite:D:/workspace/core.db
+    #\u65B9\u5F0F\u4E8C\uFF1A \u5F15\u7528\u9879\u76EE\u4E2D\u7684\u6587\u4EF6
+    #       url: jdbc:sqlite::resource:static/sqlite/xy.db
+    username:
+    password:
+  thymeleaf:
+      cache: false
+      enabled: true
+      encoding: utf-8
+      mode: HTML5
+      prefix: classpath:/templates/
+      suffix: .html
+
+# Mybatis\u914D\u7F6E
+mybatis:
+  mapperLocations: classpath:mapper/**/*.xml
+  #configLocation: classpath:mybatis.xml
+# sql\u6253\u5370
+logging:
+  level: debug
+  level.com.xuanyin: debug
+  file:
+    path: ./logs/
+#    file: admin.log
+#pagehelper配置项
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countsql
